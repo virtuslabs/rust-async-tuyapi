@@ -191,7 +191,7 @@ impl TuyaDevice {
                     let mut block: Block<Aes128> = block_bytes.into();
                     cipher.encrypt_block(&mut block);
 
-                    debug!("session key: {}", hex::encode(&block));
+                    debug!("session key: {}", hex::encode(block));
 
                     // Known v3.4 bug: if first byte of session key is 0x00, device considers it invalid
                     // This causes "Error 914: Check device key or version" and connection failures

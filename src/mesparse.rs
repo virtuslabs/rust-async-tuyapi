@@ -423,16 +423,9 @@ impl MessageParser {
     }
 
     fn try_decrypt(&self, payload: &[u8], command: &Option<CommandType>) -> Payload {
-        let payload = if self.version == TuyaVersion::ThreeFive {
-            match self.cipher.decrypt_gcm_message(payload) {
-                Ok(decrypted) => self.normalize_payload_35(decrypted, command),
-                Err(_) => payload.to_vec(),
-            }
-        } else {
-            match self.cipher.decrypt(payload) {
-                Ok(decrypted) => decrypted,
-                Err(_) => payload.to_vec(),
-            }
+        let payload = match self.cipher.decrypt(payload) {
+            Ok(decrypted) => decrypted,
+            Err(_) => payload.to_vec(),
         };
 
         match command {
@@ -448,22 +441,6 @@ impl MessageParser {
                     )
                 }
             }
-        }
-    }
-
-    fn normalize_payload_35(&self, decrypted: Vec<u8>, command: &Option<CommandType>) -> Vec<u8> {
-        let payload = if matches!(command, Some(cmd) if cmd.has_raw_payload()) {
-            decrypted
-        } else if matches!(decrypted.get(..4), Some(prefix) if prefix[0..3] == [0, 0, 0]) {
-            decrypted[4..].to_vec()
-        } else {
-            decrypted
-        };
-
-        if matches!(command, Some(cmd) if cmd.has_raw_payload()) {
-            payload
-        } else {
-            self.cipher.normalize_payload(&payload)
         }
     }
 
@@ -510,7 +487,7 @@ impl MessageParser {
 
             let suffix_offset = remaining
                 .windows(SUFFIX_BYTES_35.len())
-                .position(|window| window == &*SUFFIX_BYTES_35)
+                .position(|window| window == *SUFFIX_BYTES_35)
                 .ok_or(ErrorKind::ParsingIncomplete)?;
             let packet_end = suffix_offset + SUFFIX_BYTES_35.len();
             let packet = &remaining[..packet_end];

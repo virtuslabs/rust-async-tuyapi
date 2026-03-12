@@ -185,10 +185,6 @@ impl TuyaCipher {
         Ok(ciphertext)
     }
 
-    pub(crate) fn normalize_payload(&self, payload: &[u8]) -> Vec<u8> {
-        self.normalize_tuya_payload(payload)
-    }
-
     fn normalize_tuya_payload(&self, payload: &[u8]) -> Vec<u8> {
         let payload = maybe_strip_header(&self.version, payload);
         let Ok(value) = serde_json::from_slice::<serde_json::Value>(&payload) else {
