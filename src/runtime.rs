@@ -61,9 +61,9 @@ pub mod async_std_runtime {
     }
 }
 
-#[cfg(feature = "embassy-executor")]
+#[cfg(feature = "embassy")]
 pub use embassy_runtime::*;
-#[cfg(feature = "embassy-executor")]
+#[cfg(feature = "embassy")]
 pub mod embassy_runtime {
     pub use embassy_net::tcp::TcpSocket;
     pub use embassy_time::Timer;

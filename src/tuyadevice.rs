@@ -117,7 +117,7 @@ impl<'a> TuyaDevice<'a> {
         })
     }
 
-    #[cfg(not(feature = "embassy-executor"))]
+    #[cfg(not(feature = "embassy"))]
     pub async fn connect(&mut self) -> Result<RecvChannel>
     where
         'a: 'static,

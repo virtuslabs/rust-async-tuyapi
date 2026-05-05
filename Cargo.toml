@@ -47,5 +47,4 @@ embassy-time = "0.5.1"
 default = ["tokio"]
 tokio = ["dep:tokio"]
 async-std = ["dep:async-std"]
-embassy-executor = ["dep:embassy-executor"]
-embassy-net = ["dep:embassy-net"]
+embassy = ["dep:embassy-executor", "dep:embassy-net"]
