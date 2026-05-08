@@ -2,10 +2,10 @@
 pub use tokio_runtime::*;
 #[cfg(feature = "tokio")]
 pub mod tokio_runtime {
-    pub use futures::channel::mpsc::{channel, Receiver, Sender};
+    pub use futures::channel::mpsc::{Receiver, Sender, channel};
     pub use tokio::io::{AsyncReadExt, AsyncWriteExt};
-    pub type ReadHalf<'a> = tokio::net::tcp::OwnedReadHalf;
-    pub type WriteHalf<'a> = tokio::net::tcp::OwnedWriteHalf;
+    pub type ReadHalf = tokio::net::tcp::OwnedReadHalf;
+    pub type WriteHalf = tokio::net::tcp::OwnedWriteHalf;
     pub use tokio::net::TcpStream;
     pub use tokio::time::sleep;
 
@@ -16,15 +16,13 @@ pub mod tokio_runtime {
         tokio::spawn(future);
     }
 
-    pub async fn connect<'a>(
-        addr: &std::net::SocketAddr,
-    ) -> std::io::Result<(ReadHalf<'a>, WriteHalf<'a>)> {
+    pub async fn connect(addr: &std::net::SocketAddr) -> std::io::Result<(ReadHalf, WriteHalf)> {
         let stream = TcpStream::connect(addr).await?;
         stream.set_nodelay(true)?;
         Ok(stream.into_split())
     }
 
-    pub async fn shutdown_write_half<'a>(half: &mut WriteHalf<'a>) -> std::io::Result<()> {
+    pub async fn shutdown_write_half(half: &mut WriteHalf) -> std::io::Result<()> {
         half.shutdown().await
     }
 }
@@ -35,11 +33,11 @@ pub use async_std_runtime::*;
 pub mod async_std_runtime {
     pub use async_std::net::TcpStream;
     pub use async_std::task::sleep;
-    pub use futures::channel::mpsc::{channel, Receiver, Sender};
+    pub use futures::channel::mpsc::{Receiver, Sender, channel};
     pub use futures::io::{AsyncReadExt, AsyncWriteExt};
 
-    pub type ReadHalf<'a> = futures::io::ReadHalf<TcpStream>;
-    pub type WriteHalf<'a> = futures::io::WriteHalf<TcpStream>;
+    pub type ReadHalf = futures::io::ReadHalf<TcpStream>;
+    pub type WriteHalf = futures::io::WriteHalf<TcpStream>;
 
     pub fn spawn<F>(future: F)
     where
@@ -48,15 +46,13 @@ pub mod async_std_runtime {
         async_std::task::spawn(future);
     }
 
-    pub async fn connect<'a>(
-        addr: &std::net::SocketAddr,
-    ) -> std::io::Result<(ReadHalf<'a>, WriteHalf<'a>)> {
+    pub async fn connect(addr: &std::net::SocketAddr) -> std::io::Result<(ReadHalf, WriteHalf)> {
         let stream = TcpStream::connect(addr).await?;
         stream.set_nodelay(true)?;
         Ok(AsyncReadExt::split(stream))
     }
 
-    pub async fn shutdown_write_half<'a>(half: &mut WriteHalf<'a>) -> std::io::Result<()> {
+    pub async fn shutdown_write_half(half: &mut WriteHalf) -> std::io::Result<()> {
         half.close().await
     }
 }
@@ -68,7 +64,7 @@ pub mod embassy_runtime {
     pub use embassy_net::tcp::TcpSocket;
     pub use embassy_time::Timer;
     pub use embedded_io_async::{Read as AsyncReadExt, Write as AsyncWriteExt};
-    pub use futures::channel::mpsc::{channel, Receiver, Sender};
+    pub use futures::channel::mpsc::{Receiver, Sender, channel};
 
     pub type ReadHalf<'a> = embassy_net::tcp::TcpReader<'a>;
     pub type WriteHalf<'a> = embassy_net::tcp::TcpWriter<'a>;
@@ -80,7 +76,7 @@ pub mod embassy_runtime {
         .await;
     }
 
-    pub async fn shutdown_write_half<'a>(half: &mut WriteHalf<'a>) -> std::io::Result<()> {
+    pub async fn shutdown_write_half<'a>(_half: &mut WriteHalf<'a>) -> std::io::Result<()> {
         Ok(())
     }
 }
